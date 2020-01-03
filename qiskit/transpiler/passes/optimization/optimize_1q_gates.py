@@ -12,7 +12,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Combine chains of single qubit gates into a single U3 gate.
+"""Optimize chains of single-qubit u1, u2, u3 gates by combining them
+into a single gate.
 """
 
 from itertools import groupby
@@ -31,14 +32,9 @@ _DECIMAL_ROUND = 15
 _CHOP_THRESHOLD = 10 ** -(_DECIMAL_ROUND)
 
 
-class Consolidate1qGates(TransformationPass):
-    """Combine chains of single-qubit gates into a single U3 gate.
-
-    A single gate (chain of one) will also be converted.
-
-    This pass can make some gates temporarily less optimized, for example
-    by converting a U1 gate into a U3. A follow-up invocation of SimplifyU3
-    can correct for this.
+class Optimize1qGates(TransformationPass):
+    """Optimize chains of single-qubit u1, u2, u3 gates by combining
+    them into a single gate.
     """
 
     def __init__(self, basis=None):
