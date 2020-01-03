@@ -45,7 +45,8 @@ from qiskit.transpiler.passes import EnlargeWithAncilla
 from qiskit.transpiler.passes import FixedPoint
 from qiskit.transpiler.passes import Depth
 from qiskit.transpiler.passes import RemoveResetInZeroState
-from qiskit.transpiler.passes import Optimize1qGates
+from qiskit.transpiler.passes import Collapse1qChains
+from qiskit.transpiler.passes import SimplifyU3
 from qiskit.transpiler.passes import CommutativeCancellation
 from qiskit.transpiler.passes import OptimizeSwapBeforeMeasure
 from qiskit.transpiler.passes import RemoveDiagonalGatesBeforeMeasure
@@ -176,7 +177,14 @@ def level_3_pass_manager(pass_manager_config: PassManagerConfig) -> PassManager:
         kak_gate = kak_gate_names[kak_gates.pop()]
 
     _opt = [Collect2qBlocks(), ConsolidateBlocks(kak_basis_gate=kak_gate),
-            Optimize1qGates(basis_gates), CommutativeCancellation()]
+            CommutativeCancellation()]
+
+    # TODO: temporary hack to make sure user basis are respected. eventually, all optimizations
+    # should be done in terms of u3 and the result re-written in the requested basis.
+    if 'u1' in basis_gates and 'u2' in basis_gates:
+        _opt += [Collapse1qChains(), SimplifyU3()]
+    elif 'u3' in basis_gates:
+        _opt = [Collapse1qChains()]
 
     # Build pass manager
     pm3 = PassManager()
