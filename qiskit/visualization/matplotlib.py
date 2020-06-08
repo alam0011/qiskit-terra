@@ -42,6 +42,7 @@ except ImportError:
     HAS_PYLATEX = False
 
 from qiskit.circuit import ControlledGate
+from qiskit.circuit import Delay
 from qiskit.visualization.qcstyle import DefaultStyle, BWStyle
 from qiskit import user_config
 from qiskit.circuit.tools.pi_check import pi_check
