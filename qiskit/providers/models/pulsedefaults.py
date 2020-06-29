@@ -109,7 +109,7 @@ class Command(SimpleNamespace):
         Args:
             name (str): The name of the command
             qubits: The qubits for the command
-            sequence (PulseQobjInstruction): The sequence for the Command
+            sequence (list[PulseQobjInstruction]): The sequence for the Command
             kwargs: Optional additional fields
         """
         self.name = name

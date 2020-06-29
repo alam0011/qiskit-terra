@@ -39,3 +39,4 @@ from .paris import FakeParis
 from .rochester import FakeRochester
 from .athens import FakeAthens
 from .rome import FakeRome
+from .johannesburg_ecr import FakeJohannesburgECR
