@@ -2045,10 +2045,10 @@ class QuantumCircuit:
         from .library.standard_gates.rzz import RZZGate
         return self.append(RZZGate(theta), [qubit1, qubit2], [])
 
-    def ecr(self, theta, qubit1, qubit2):
+    def ecr(self, qubit1, qubit2):
         """Apply :class:`~qiskit.circuit.library.ECRGate`."""
         from .library.standard_gates.ecr import ECRGate
-        return self.append(ECRGate, [qubit1, qubit2], [])
+        return self.append(ECRGate(), [qubit1, qubit2], [])
 
     @deprecate_arguments({'q': 'qubit'})
     def s(self, qubit, *, q=None):  # pylint: disable=invalid-name,unused-argument
