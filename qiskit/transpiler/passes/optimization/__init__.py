@@ -24,4 +24,5 @@ from .optimize_swap_before_measure import OptimizeSwapBeforeMeasure
 from .remove_reset_in_zero_state import RemoveResetInZeroState
 from .remove_diagonal_gates_before_measure import RemoveDiagonalGatesBeforeMeasure
 from .crosstalk_adaptive_schedule import CrosstalkAdaptiveSchedule
+from .simplify_u3 import SimplifyU3
 from .hoare_opt import HoareOptimizer
