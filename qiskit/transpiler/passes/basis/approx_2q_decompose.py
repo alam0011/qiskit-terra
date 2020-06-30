@@ -31,14 +31,11 @@ class Approx2qDecompose(TransformationPass):
 
     def run(self, dag):
         qr = QuantumRegister(2)
-        print('running')
         for node in dag.named_nodes("unitary"):
-            print('unitary')
             if len(node.qargs) != 2:
                 continue
             decomposer = TwoQubitBasisDecomposer(self.basis)
             rule = decomposer(node.op, basis_fidelity=self.fidelity)
-            print(self.fidelity)
             decomposition = DAGCircuit()
             decomposition.add_qreg(rule[0][1][0].register)
             for inst in rule:

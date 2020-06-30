@@ -155,8 +155,7 @@ class ConsolidateBlocks(TransformationPass):
                             and not set(subcirc.count_ops()).issubset(self.basis_gates))
                 ):
                     new_dag.apply_operation_back(
-                        UnitaryGate(unitary),
-                        sorted(block_qargs, key=lambda x: block_index_map[x]))
+                        unitary, sorted(block_qargs, key=lambda x: block_index_map[x]))
                 else:
                     for nd in block:
                         new_dag.apply_operation_back(nd.op, nd.qargs, nd.cargs)
