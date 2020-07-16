@@ -186,9 +186,9 @@ def level_3_pass_manager(pass_manager_config: PassManagerConfig) -> PassManager:
         pm3.append(_reset + _meas)
         pm3.append(_swap_check)
         pm3.append(_swap, condition=_swap_condition)
-        if not coupling_map.is_symmetric:
-            pm3.append(_direction_check)
-            pm3.append(_direction, condition=_direction_condition)
     pm3.append(_depth_check + _opt + _unroll, do_while=_opt_control)
+    if coupling_map and not coupling_map.is_symmetric:
+        pm3.append(_direction_check)
+        pm3.append(_direction, condition=_direction_condition)
 
     return pm3
