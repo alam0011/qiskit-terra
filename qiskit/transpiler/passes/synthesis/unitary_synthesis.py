@@ -20,10 +20,11 @@ from typing import List
 from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.dagcircuit.dagcircuit import DAGCircuit
-from qiskit.circuit.library.standard_gates import iSwapGate, CXGate, CZGate, RXXGate
+from qiskit.circuit.library.standard_gates import iSwapGate, CXGate, CZGate, RXXGate, ECRGate
 from qiskit.extensions.quantum_initializer import isometry
 from qiskit.quantum_info.synthesis.one_qubit_decompose import OneQubitEulerDecomposer
 from qiskit.quantum_info.synthesis.two_qubit_decompose import TwoQubitBasisDecomposer
+from qiskit.providers.models import BackendProperties
 
 
 def _choose_kak_gate(basis_gates):
@@ -34,6 +35,7 @@ def _choose_kak_gate(basis_gates):
         'cz': CZGate(),
         'iswap': iSwapGate(),
         'rxx': RXXGate(pi / 2),
+        'ecr': ECRGate()
     }
 
     kak_gate = None
@@ -66,16 +68,29 @@ def _choose_euler_basis(basis_gates):
 
 
 class UnitarySynthesis(TransformationPass):
-    """Synthesize gates according to their basis gates."""
+    """Synthesize unitaries over some basis gates.
 
-    def __init__(self, basis_gates: List[str]):
-        """SynthesizeUnitaries initializer.
+    This pass can approximate 2-qubit unitaries given some approximation
+    error budget (expressed as synthesis_fidelity). Other unitaries are
+    synthesized exactly.
+    """
+
+    def __init__(self,
+                 basis_gates: List[str],
+                 synthesis_fidelity: float = 1,
+                 backend_props: BackendProperties = None):
+        """UnitarySynthesis initializer.
 
         Args:
             basis_gates: List of gate names to target.
+            synthesis_fidelity: minimum synthesis fidelity due to approximation.
+            backend_props: properties of a backend to synthesize for
+                (e.g. gate fidelities).
         """
         super().__init__()
         self._basis_gates = basis_gates
+        self._fidelity = synthesis_fidelity
+        self._backend_props = backend_props
 
     def run(self, dag: DAGCircuit) -> DAGCircuit:
         """Run the UnitarySynthesis pass on `dag`.
@@ -106,7 +121,8 @@ class UnitarySynthesis(TransformationPass):
             elif len(node.qargs) == 2:
                 if decomposer2q is None:
                     continue
-                synth_dag = circuit_to_dag(decomposer2q(node.op.to_matrix()))
+                synth_dag = circuit_to_dag(decomposer2q(node.op.to_matrix(),
+                                                        basis_fidelity=self._fidelity))
             else:
                 synth_dag = circuit_to_dag(
                     isometry.Isometry(node.op.to_matrix(), 0, 0).definition)
