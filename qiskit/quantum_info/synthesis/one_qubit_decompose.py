@@ -314,7 +314,7 @@ class OneQubitEulerDecomposer:
             circuit = QuantumCircuit(1)
             circuit.append(U1Gate(lam + phi + theta), [0])
             return circuit
-        if simplify and np.isclose(abs(theta), np.pi/2, atol=atol):
+        if simplify and np.isclose(abs(theta), 3*np.pi/2, atol=atol):
             # Single X90 gate decomposition
             circuit = QuantumCircuit(1)
             circuit.append(U1Gate(lam + theta), [0])
