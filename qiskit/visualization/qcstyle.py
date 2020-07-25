@@ -90,6 +90,8 @@ class DefaultStyle:
             'swap': clifford_color,
             's': clifford_color,
             'sdg': clifford_color,
+            'sx': clifford_color,
+            'sxdg': clifford_color,
             'dcx': clifford_color,
             'iswap': clifford_color,
             't': other_color,

@@ -57,6 +57,8 @@ Standard Gates
    ECRGate
    SGate
    SdgGate
+   SXGate
+   SXdgGate
    SwapGate
    iSwapGate
    TGate
