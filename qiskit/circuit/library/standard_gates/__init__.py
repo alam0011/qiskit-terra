@@ -49,6 +49,8 @@ Standard gates (:mod:`qiskit.circuit.library.standard_gates`)
    ECRGate
    SGate
    SdgGate
+   SXGate
+   SXdgGate
    SwapGate
    iSwapGate
    TGate
@@ -75,6 +77,7 @@ from .rzz import RZZGate
 from .rzx import RZXGate
 from .ecr import ECRGate
 from .s import SGate, SdgGate
+from .sx import SXGate, SXdgGate
 from .swap import SwapGate, CSwapGate
 from .iswap import iSwapGate
 from .dcx import DCXGate

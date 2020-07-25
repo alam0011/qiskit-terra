@@ -2062,6 +2062,16 @@ class QuantumCircuit:
         from .library.standard_gates.s import SdgGate
         return self.append(SdgGate(), [qubit], [])
 
+    def sx(self, qubit):
+        """Apply :class:`~qiskit.circuit.library.SXGate`."""
+        from .library.standard_gates.sx import SXGate
+        return self.append(SXGate(), [qubit], [])
+
+    def sxdg(self, qubit):
+        """Apply :class:`~qiskit.circuit.library.SXdgGate`."""
+        from .library.standard_gates.sx import SXdgGate
+        return self.append(SXdgGate(), [qubit], [])
+
     def swap(self, qubit1, qubit2):
         """Apply :class:`~qiskit.circuit.library.SwapGate`."""
         from .library.standard_gates.swap import SwapGate

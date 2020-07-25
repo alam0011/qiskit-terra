@@ -701,7 +701,8 @@ class MatplotlibDrawer:
                                  - n_fold * (self._cond['n_lines'] + 1)))
 
     def _draw_ops(self, verbose=False):
-        _standard_gates = ['x', 'y', 'z', 'id', 'h', 'r', 's', 'sdg', 't', 'tdg', 'rx', 'ry', 'rz',
+        _standard_gates = ['x', 'y', 'z', 'id', 'h', 'r', 's', 'sdg', 'sx', 'sxdg',
+                           't', 'tdg', 'rx', 'ry', 'rz',
                            'rxx', 'ryy', 'rzx', 'u1', 'u2', 'u3', 'swap', 'reset']
         _barrier_gates = ['barrier', 'snapshot', 'load', 'save', 'noise']
         _barriers = {'coord': [], 'group': []}
