@@ -290,8 +290,6 @@ class TwoQubitBasisDecomposer():
         self.gate = gate
         self.basis_fidelity = basis_fidelity
         self.pulse_optimize = pulse_optimize
-        if pulse_optimize and not isinstance(gate, (CXGate, ECRGate)):
-            raise QiskitError("Can only pulse optimize when starting from CX or ECR basis.")
 
         basis = self.basis = TwoQubitWeylDecomposition(Operator(gate).data)
         if euler_basis is not None:
@@ -486,64 +484,101 @@ class TwoQubitBasisDecomposer():
         return_circuit.compose(decomposition_euler[2*best_nbasis], [q[0]], inplace=True)
         return_circuit.compose(decomposition_euler[2*best_nbasis+1], [q[1]], inplace=True)
 
-        if self.pulse_optimize and isinstance(self.gate, CXGate) and best_nbasis == 3:
+        if self.pulse_optimize:
             pulse_optimize_circuit = QuantumCircuit(q)
-            pulse_optimize_circuit.u3(*decomposition_euler[0][0][0].params, q[0])
-            pulse_optimize_circuit.u3(*decomposition_euler[1][0][0].params, q[1])
-            pulse_optimize_circuit.h(q[0])
-            pulse_optimize_circuit.y(q[0])
-            pulse_optimize_circuit.h(q[1])
-            pulse_optimize_circuit.z(q[1])
-            pulse_optimize_circuit.cx(q[1], q[0])
-            pulse_optimize_circuit.u1(decomposition_euler[2][0][0].params[0], q[0])
-            pulse_optimize_circuit.h(q[1])
-            pulse_optimize_circuit.u1(decomposition_euler[3][0][0].params[2], q[1])
-            pulse_optimize_circuit.cx(q[1], q[0])
-            if np.isclose(decomposition_euler[4][0][0].params[1], np.pi):
-                pulse_optimize_circuit.u1(decomposition_euler[4][0][0].params[0], q[0])
-            else:
-                pulse_optimize_circuit.u1(-decomposition_euler[4][0][0].params[0], q[0])
-            pulse_optimize_circuit.h(q[1])
-            pulse_optimize_circuit.cx(q[1], q[0])
-            pulse_optimize_circuit.h(q[0])
-            pulse_optimize_circuit.sdg(q[0])
-            pulse_optimize_circuit.x(q[0])
-            pulse_optimize_circuit.sdg(q[1])
-            pulse_optimize_circuit.h(q[1])
-            pulse_optimize_circuit.y(q[1])
-            pulse_optimize_circuit.u3(*decomposition_euler[6][0][0].params, q[0])
-            pulse_optimize_circuit.u3(*decomposition_euler[7][0][0].params, q[1])
-            return pulse_optimize_circuit, return_circuit
+            if best_nbasis == 0 or best_nbasis == 1:
+                pass
+            elif best_nbasis == 2:
+                if isinstance(self.gate, CXGate):
+                    pulse_optimize_circuit.u3(*decomposition_euler[0][0][0].params, q[0])
+                    pulse_optimize_circuit.u3(*decomposition_euler[1][0][0].params, q[1])
+                    pulse_optimize_circuit.cx(q[0], q[1])
+                    pulse_optimize_circuit.h(q[0])
+                    pulse_optimize_circuit.u1(decomposition_euler[2][0][0].params[0], q[0])
+                    pulse_optimize_circuit.h(q[0])
+                    pulse_optimize_circuit.u1(decomposition_euler[3][0][0].params[2], q[1])
+                    pulse_optimize_circuit.sdg(q[1])
+                    pulse_optimize_circuit.cx(q[0], q[1])
+                    pulse_optimize_circuit.sdg(q[0])
+                    pulse_optimize_circuit.sx(q[1])
+                    pulse_optimize_circuit.u3(*decomposition_euler[4][0][0].params, q[0])
+                    pulse_optimize_circuit.u3(*decomposition_euler[5][0][0].params, q[1])
+                elif isinstance(self.gate, ECRGate):
+                    pulse_optimize_circuit.u3(*decomposition_euler[0][0][0].params, q[0])
+                    pulse_optimize_circuit.u3(*decomposition_euler[1][0][0].params, q[1])
+                    pulse_optimize_circuit.z(q[0])
+                    pulse_optimize_circuit.sxdg(q[1])
+                    pulse_optimize_circuit.ecr(q[0], q[1])
+                    pulse_optimize_circuit.sx(q[0])
+                    pulse_optimize_circuit.u1(decomposition_euler[2][0][0].params[0], q[0])
+                    pulse_optimize_circuit.sxdg(q[0])
+                    pulse_optimize_circuit.u1(decomposition_euler[3][0][0].params[0], q[1])
+                    pulse_optimize_circuit.ecr(q[0], q[1])
+                    pulse_optimize_circuit.z(q[0])
+                    pulse_optimize_circuit.z(q[1])
+                    pulse_optimize_circuit.sx(q[1])
+                    pulse_optimize_circuit.u3(*decomposition_euler[4][0][0].params, q[0])
+                    pulse_optimize_circuit.u3(*decomposition_euler[5][0][0].params, q[1])
+                else:
+                    raise QiskitError('pulse optimal synthesis works only on CX and ECR basis.')
+            elif best_nbasis == 3:
+                if isinstance(self.gate, CXGate):
+                    pulse_optimize_circuit.u3(*decomposition_euler[0][0][0].params, q[0])
+                    pulse_optimize_circuit.u3(*decomposition_euler[1][0][0].params, q[1])
+                    pulse_optimize_circuit.h(q[0])
+                    pulse_optimize_circuit.y(q[0])
+                    pulse_optimize_circuit.h(q[1])
+                    pulse_optimize_circuit.z(q[1])
+                    pulse_optimize_circuit.cx(q[1], q[0])
+                    pulse_optimize_circuit.u1(decomposition_euler[2][0][0].params[0], q[0])
+                    pulse_optimize_circuit.h(q[1])
+                    pulse_optimize_circuit.u1(decomposition_euler[3][0][0].params[2], q[1])
+                    pulse_optimize_circuit.cx(q[1], q[0])
+                    if np.isclose(decomposition_euler[4][0][0].params[1], np.pi):
+                        pulse_optimize_circuit.u1(decomposition_euler[4][0][0].params[0], q[0])
+                    else:
+                        pulse_optimize_circuit.u1(-decomposition_euler[4][0][0].params[0], q[0])
+                    pulse_optimize_circuit.h(q[1])
+                    pulse_optimize_circuit.cx(q[1], q[0])
+                    pulse_optimize_circuit.h(q[0])
+                    pulse_optimize_circuit.sdg(q[0])
+                    pulse_optimize_circuit.x(q[0])
+                    pulse_optimize_circuit.sdg(q[1])
+                    pulse_optimize_circuit.h(q[1])
+                    pulse_optimize_circuit.y(q[1])
+                    pulse_optimize_circuit.u3(*decomposition_euler[6][0][0].params, q[0])
+                    pulse_optimize_circuit.u3(*decomposition_euler[7][0][0].params, q[1])
+                elif isinstance(self.gate, ECRGate):
+                    pulse_optimize_circuit.u3(*decomposition_euler[0][0][0].params, q[0])
+                    pulse_optimize_circuit.u3(*decomposition_euler[1][0][0].params, q[1])
+                    pulse_optimize_circuit.s(q[0])
+                    pulse_optimize_circuit.h(q[0])
+                    pulse_optimize_circuit.z(q[0])
+                    pulse_optimize_circuit.h(q[1])
+                    pulse_optimize_circuit.x(q[1])
+                    pulse_optimize_circuit.ecr(q[1], q[0])
+                    pulse_optimize_circuit.u1(decomposition_euler[2][0][0].params[0], q[0])
+                    pulse_optimize_circuit.sxdg(q[1])
+                    pulse_optimize_circuit.u1(decomposition_euler[3][0][0].params[0], q[1])
+                    pulse_optimize_circuit.ecr(q[1], q[0])
+                    pulse_optimize_circuit.sx(q[0])
+                    if np.isclose(decomposition_euler[4][0][0].params[1], 0):
+                        pulse_optimize_circuit.u1(decomposition_euler[4][0][0].params[0], q[0])
+                    else:
+                        pulse_optimize_circuit.u1(-decomposition_euler[4][0][0].params[0], q[0])
+                    pulse_optimize_circuit.sx(q[1])
+                    pulse_optimize_circuit.ecr(q[1], q[0])
+                    pulse_optimize_circuit.h(q[0])
+                    pulse_optimize_circuit.s(q[0])
+                    pulse_optimize_circuit.h(q[1])
+                    pulse_optimize_circuit.y(q[1])
+                    pulse_optimize_circuit.u3(*decomposition_euler[6][0][0].params, q[0])
+                    pulse_optimize_circuit.u3(*decomposition_euler[7][0][0].params, q[1])
+                else:
+                    raise QiskitError('pulse optimal synthesis works only on CX and ECR basis.')
 
-        elif self.pulse_optimize and isinstance(self.gate, ECRGate) and best_nbasis == 3:
-            pulse_optimize_circuit = QuantumCircuit(q)
-            pulse_optimize_circuit.u3(*decomposition_euler[0][0][0].params, q[0])
-            pulse_optimize_circuit.u3(*decomposition_euler[1][0][0].params, q[1])
-            pulse_optimize_circuit.s(q[0])
-            pulse_optimize_circuit.h(q[0])
-            pulse_optimize_circuit.z(q[0])
-            pulse_optimize_circuit.h(q[1])
-            pulse_optimize_circuit.x(q[1])
-            pulse_optimize_circuit.ecr(q[1], q[0])
-            pulse_optimize_circuit.u1(decomposition_euler[2][0][0].params[0], q[0])
-            pulse_optimize_circuit.sxdg(q[1])
-            pulse_optimize_circuit.u1(decomposition_euler[3][0][0].params[0], q[1])
-            pulse_optimize_circuit.ecr(q[1], q[0])
-            pulse_optimize_circuit.sx(q[0])
-            if np.isclose(decomposition_euler[4][0][0].params[1], 0):
-                pulse_optimize_circuit.u1(decomposition_euler[4][0][0].params[0], q[0])
-            else:
-                pulse_optimize_circuit.u1(-decomposition_euler[4][0][0].params[0], q[0])
-            pulse_optimize_circuit.sx(q[1])
-            pulse_optimize_circuit.ecr(q[1], q[0])
-            pulse_optimize_circuit.h(q[0])
-            pulse_optimize_circuit.s(q[0])
-            pulse_optimize_circuit.h(q[1])
-            pulse_optimize_circuit.y(q[1])
-            pulse_optimize_circuit.u3(*decomposition_euler[6][0][0].params, q[0])
-            pulse_optimize_circuit.u3(*decomposition_euler[7][0][0].params, q[1])
+                return_circuit = pulse_optimize_circuit
 
-            return pulse_optimize_circuit, return_circuit
         return return_circuit
 
     def num_basis_gates(self, unitary):
