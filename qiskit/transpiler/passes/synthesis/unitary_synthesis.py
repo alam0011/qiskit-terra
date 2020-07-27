@@ -74,6 +74,8 @@ class UnitarySynthesis(TransformationPass):
     This pass can approximate 2-qubit unitaries given some approximation
     error budget (expressed as synthesis_fidelity). Other unitaries are
     synthesized exactly.
+
+    AJ: Add Swap synthsis too because we know pulse-efficient synthesis for it.
     """
 
     def __init__(self,
@@ -117,7 +119,7 @@ class UnitarySynthesis(TransformationPass):
             decomposer2q = TwoQubitBasisDecomposer(kak_gate, euler_basis=euler_basis,
                                                    pulse_optimize=pulse_optimize)
 
-        for node in dag.named_nodes('unitary'):
+        for node in dag.named_nodes('unitary', 'swap'):
 
             synth_dag = None
             wires = None
@@ -153,18 +155,17 @@ class UnitarySynthesis(TransformationPass):
                     if natural_direction:
                         physical_gate_fidelity = 1 - self._backend_props.gate_error(
                                 kak_gate.name, [node.qargs[i].index for i in natural_direction])
-
-                    from qiskit.converters import dag_to_circuit
-                    print('node.qargs: ', node.qargs)
-                    print('len_0_1: ', len_0_1)
-                    print('len_1_0: ', len_1_0)
-                    print('natural_direction: ', natural_direction)
+                #    print('len_0_1: ', len_0_1)
+                #    print('len_1_0: ', len_1_0)
+                #from qiskit.converters import dag_to_circuit
+                #print('node.qargs: ', node.qargs)
+                #print('natural_direction: ', natural_direction)
 
                 basis_fidelity = self._fidelity or physical_gate_fidelity
                 su4_mat = node.op.to_matrix()
                 synth_dag = circuit_to_dag(
                     decomposer2q(su4_mat, basis_fidelity=basis_fidelity))
-                print(dag_to_circuit(synth_dag).draw(fold=200))
+                #print(dag_to_circuit(synth_dag).draw(fold=200))
                 # if a natural direction exists but the synthesis is in the opposite direction,
                 # resynthesize a new operator which is the original conjugated by swaps.
                 # this new operator is doubly mirrored from the original and is locally equivalent.
@@ -175,8 +176,8 @@ class UnitarySynthesis(TransformationPass):
                     synth_dag = circuit_to_dag(
                         decomposer2q(su4_mat, basis_fidelity=basis_fidelity))
                     wires = synth_dag.wires[::-1]
-                    print('need to flip')
-                    print(dag_to_circuit(synth_dag).draw(fold=200))
+                    #print('need to flip')
+                    #print(dag_to_circuit(synth_dag).draw(fold=200))
             else:
                 synth_dag = circuit_to_dag(
                     isometry.Isometry(node.op.to_matrix(), 0, 0).definition)
