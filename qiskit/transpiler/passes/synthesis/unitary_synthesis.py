@@ -140,12 +140,12 @@ class UnitarySynthesis(TransformationPass):
                     len_1_0 = inf
                     try:
                         len_0_1 = self._backend_props.gate_length(
-                            kak_gate.name, [node.qargs[0].index, node.qargs[1].index])
+                            'cx', [node.qargs[0].index, node.qargs[1].index])
                     except BackendPropertyError:
                         pass
                     try:
                         len_1_0 = self._backend_props.gate_length(
-                            kak_gate.name, [node.qargs[1].index, node.qargs[0].index])
+                            'cx', [node.qargs[1].index, node.qargs[0].index])
                     except BackendPropertyError:
                         pass
 
@@ -155,7 +155,7 @@ class UnitarySynthesis(TransformationPass):
                         natural_direction = [1, 0]
                     if natural_direction:
                         physical_gate_fidelity = 1 - self._backend_props.gate_error(
-                                kak_gate.name, [node.qargs[i].index for i in natural_direction])
+                                'cx', [node.qargs[i].index for i in natural_direction])
                 #    print('len_0_1: ', len_0_1)
                 #    print('len_1_0: ', len_1_0)
                 #from qiskit.converters import dag_to_circuit
