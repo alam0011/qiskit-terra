@@ -16,6 +16,7 @@
 
 from math import pi, inf
 from typing import List
+from copy import deepcopy
 
 from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.basepasses import TransformationPass
@@ -166,18 +167,21 @@ class UnitarySynthesis(TransformationPass):
                 synth_dag = circuit_to_dag(
                     decomposer2q(su4_mat, basis_fidelity=basis_fidelity))
                 #print(dag_to_circuit(synth_dag).draw(fold=200))
+
                 # if a natural direction exists but the synthesis is in the opposite direction,
                 # resynthesize a new operator which is the original conjugated by swaps.
                 # this new operator is doubly mirrored from the original and is locally equivalent.
                 if (natural_direction and
                     [q.index for q in synth_dag.two_qubit_ops()[0].qargs] != natural_direction):
-                    su4_mat[[1, 2]] = su4_mat[[2, 1]]
-                    su4_mat[:, [1, 2]] = su4_mat[:, [2, 1]]
+                    su4_mat_mm = deepcopy(su4_mat)
+                    su4_mat_mm[[1, 2]] = su4_mat_mm[[2, 1]]
+                    su4_mat_mm[:, [1, 2]] = su4_mat_mm[:, [2, 1]]
                     synth_dag = circuit_to_dag(
-                        decomposer2q(su4_mat, basis_fidelity=basis_fidelity))
+                        decomposer2q(su4_mat_mm, basis_fidelity=basis_fidelity))
                     wires = synth_dag.wires[::-1]
-                    #print('need to flip')
-                    #print(dag_to_circuit(synth_dag).draw(fold=200))
+
+                 #   print('need to flip')
+                 #   print(dag_to_circuit(synth_dag).draw(fold=200))
             else:
                 synth_dag = circuit_to_dag(
                     isometry.Isometry(node.op.to_matrix(), 0, 0).definition)
