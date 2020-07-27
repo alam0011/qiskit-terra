@@ -521,6 +521,7 @@ class TwoQubitBasisDecomposer():
                     pulse_optimize_circuit.u3(*decomposition_euler[5][0][0].params, q[1])
                 else:
                     raise QiskitError('pulse optimal synthesis works only on CX and ECR basis.')
+                return_circuit = pulse_optimize_circuit
             elif best_nbasis == 3:
                 if isinstance(self.gate, CXGate):
                     pulse_optimize_circuit.u3(*decomposition_euler[0][0][0].params, q[0])
@@ -576,7 +577,6 @@ class TwoQubitBasisDecomposer():
                     pulse_optimize_circuit.u3(*decomposition_euler[7][0][0].params, q[1])
                 else:
                     raise QiskitError('pulse optimal synthesis works only on CX and ECR basis.')
-
                 return_circuit = pulse_optimize_circuit
 
         return return_circuit
