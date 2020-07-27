@@ -14,7 +14,7 @@
 
 """Synthesize UnitaryGates."""
 
-from math import pi
+from math import pi, inf
 from typing import List
 
 from qiskit.converters import circuit_to_dag
@@ -25,6 +25,7 @@ from qiskit.extensions.quantum_initializer import isometry
 from qiskit.quantum_info.synthesis.one_qubit_decompose import OneQubitEulerDecomposer
 from qiskit.quantum_info.synthesis.two_qubit_decompose import TwoQubitBasisDecomposer
 from qiskit.providers.models import BackendProperties
+from qiskit.providers.exceptions import BackendPropertyError
 
 
 def _choose_kak_gate(basis_gates):
@@ -104,16 +105,22 @@ class UnitarySynthesis(TransformationPass):
 
         euler_basis = _choose_euler_basis(self._basis_gates)
         kak_gate = _choose_kak_gate(self._basis_gates)
+        if isinstance(kak_gate, (CXGate, ECRGate)) and self._backend_props:
+            pulse_optimize = True
+        else:
+            pulse_optimize = False
 
         decomposer1q, decomposer2q = None, None
         if euler_basis is not None:
             decomposer1q = OneQubitEulerDecomposer(euler_basis)
         if kak_gate is not None:
-            decomposer2q = TwoQubitBasisDecomposer(kak_gate, euler_basis=euler_basis)
+            decomposer2q = TwoQubitBasisDecomposer(kak_gate, euler_basis=euler_basis,
+                                                   pulse_optimize=pulse_optimize)
 
         for node in dag.named_nodes('unitary'):
 
             synth_dag = None
+            wires = None
             if len(node.qargs) == 1:
                 if decomposer1q is None:
                     continue
@@ -121,12 +128,59 @@ class UnitarySynthesis(TransformationPass):
             elif len(node.qargs) == 2:
                 if decomposer2q is None:
                     continue
-                synth_dag = circuit_to_dag(decomposer2q(node.op.to_matrix(),
-                                                        basis_fidelity=self._fidelity))
+                # if unitary is on physical qubits, expand in natural gate direction.
+                natural_direction = None
+                physical_gate_fidelity = None
+                layout = self.property_set['layout']
+                if layout and self._backend_props:
+                    len_0_1 = inf
+                    len_1_0 = inf
+                    try:
+                        len_0_1 = self._backend_props.gate_length(
+                            kak_gate.name, [node.qargs[0].index, node.qargs[1].index])
+                    except BackendPropertyError:
+                        pass
+                    try:
+                        len_1_0 = self._backend_props.gate_length(
+                            kak_gate.name, [node.qargs[1].index, node.qargs[0].index])
+                    except BackendPropertyError:
+                        pass
+
+                    if len_0_1 < len_1_0:
+                        natural_direction = [0, 1]
+                    elif len_1_0 < len_0_1:
+                        natural_direction = [1, 0]
+                    if natural_direction:
+                        physical_gate_fidelity = 1 - self._backend_props.gate_error(
+                                kak_gate.name, [node.qargs[i].index for i in natural_direction])
+
+                    from qiskit.converters import dag_to_circuit
+                    print('node.qargs: ', node.qargs)
+                    print('len_0_1: ', len_0_1)
+                    print('len_1_0: ', len_1_0)
+                    print('natural_direction: ', natural_direction)
+
+                basis_fidelity = self._fidelity or physical_gate_fidelity
+                su4_mat = node.op.to_matrix()
+                synth_dag = circuit_to_dag(
+                    decomposer2q(su4_mat, basis_fidelity=basis_fidelity))
+                print(dag_to_circuit(synth_dag).draw(fold=200))
+                # if a natural direction exists but the synthesis is in the opposite direction,
+                # resynthesize a new operator which is the original conjugated by swaps.
+                # this new operator is doubly mirrored from the original and is locally equivalent.
+                if (natural_direction and
+                    [q.index for q in synth_dag.two_qubit_ops()[0].qargs] != natural_direction):
+                    su4_mat[[1, 2]] = su4_mat[[2, 1]]
+                    su4_mat[:, [1, 2]] = su4_mat[:, [2, 1]]
+                    synth_dag = circuit_to_dag(
+                        decomposer2q(su4_mat, basis_fidelity=basis_fidelity))
+                    wires = synth_dag.wires[::-1]
+                    print('need to flip')
+                    print(dag_to_circuit(synth_dag).draw(fold=200))
             else:
                 synth_dag = circuit_to_dag(
                     isometry.Isometry(node.op.to_matrix(), 0, 0).definition)
 
-            dag.substitute_node_with_dag(node, synth_dag)
+            dag.substitute_node_with_dag(node, synth_dag, wires=wires)
 
         return dag
