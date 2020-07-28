@@ -96,6 +96,7 @@ def level_3_pass_manager(pass_manager_config: PassManagerConfig) -> PassManager:
     seed_transpiler = pass_manager_config.seed_transpiler
     backend_properties = pass_manager_config.backend_properties
     synthesis_fidelity = pass_manager_config.synthesis_fidelity
+    pulse_optimize = pass_manager_config.pulse_optimize
 
     # 1. Unroll to 1q or 2q gates
     _unroll3q = Unroll3qOrMore()
@@ -178,7 +179,7 @@ def level_3_pass_manager(pass_manager_config: PassManagerConfig) -> PassManager:
     _opt = [
         Collect2qBlocks(),
         ConsolidateBlocks(basis_gates=basis_gates),
-        UnitarySynthesis(basis_gates, synthesis_fidelity, backend_properties),
+        UnitarySynthesis(basis_gates, synthesis_fidelity, backend_properties, pulse_optimize),
         Optimize1qGates(basis_gates),
         SimplifyU3(),
         CommutativeCancellation(),
@@ -208,7 +209,7 @@ def level_3_pass_manager(pass_manager_config: PassManagerConfig) -> PassManager:
         pm3.append(_embed)
         pm3.append(_swap_check)
         pm3.append(_swap, condition=_swap_condition)
-    pm3.append(_depth_check + _opt + _unroll)
+    pm3.append(_depth_check + _opt + _unroll, do_while=_opt_control)
     if coupling_map and not coupling_map.is_symmetric:
        pm3.append(_direction_check)
        pm3.append(_direction, condition=_direction_condition)
