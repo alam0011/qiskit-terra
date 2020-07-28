@@ -49,6 +49,7 @@ def transpile(circuits: Union[QuantumCircuit, List[QuantumCircuit]],
               routing_method: Optional[str] = None,
               translation_method: Optional[str] = None,
               synthesis_fidelity: Optional[float] = None,
+              pulse_optimize: Optional[bool] = None,
               seed_transpiler: Optional[int] = None,
               optimization_level: Optional[int] = None,
               pass_manager: Optional[PassManager] = None,
@@ -122,6 +123,7 @@ def transpile(circuits: Union[QuantumCircuit, List[QuantumCircuit]],
             may not run.
         routing_method: Name of routing pass ('basic', 'lookahead', 'stochastic', 'sabre')
         synthesis_fidelity (float): tolerable fidelity for approximate synthesis.
+        pulse_optimize (bool): whether to optimize pulses during synthesis.
         translation_method: Name of translation pass ('unroller', 'translator', 'synthesis')
         seed_transpiler: Sets random seed for the stochastic parts of the transpiler
         optimization_level: How much optimization to perform on the circuits.
@@ -192,6 +194,7 @@ def transpile(circuits: Union[QuantumCircuit, List[QuantumCircuit]],
                                     routing_method=routing_method,
                                     translation_method=translation_method,
                                     synthesis_fidelity=synthesis_fidelity,
+                                    pulse_optimize=pulse_optimize,
                                     backend=backend)
 
         warnings.warn("The parameter pass_manager in transpile is being deprecated. "
@@ -208,7 +211,7 @@ def transpile(circuits: Union[QuantumCircuit, List[QuantumCircuit]],
     transpile_args = _parse_transpile_args(circuits, backend, basis_gates, coupling_map,
                                            backend_properties, initial_layout,
                                            layout_method, routing_method, translation_method,
-                                           synthesis_fidelity, seed_transpiler,
+                                           synthesis_fidelity, pulse_optimize, seed_transpiler,
                                            optimization_level, callback, output_name)
 
     _check_circuits_coupling_map(circuits, transpile_args, backend)
@@ -318,7 +321,7 @@ def _transpile_circuit(circuit_config_tuple: Tuple[QuantumCircuit, Dict]) -> Qua
 def _parse_transpile_args(circuits, backend,
                           basis_gates, coupling_map, backend_properties,
                           initial_layout, layout_method, routing_method, translation_method,
-                          synthesis_fidelity, seed_transpiler, optimization_level,
+                          synthesis_fidelity, pulse_optimize, seed_transpiler, optimization_level,
                           callback, output_name) -> List[Dict]:
     """Resolve the various types of args allowed to the transpile() function through
     duck typing, overriding args, etc. Refer to the transpile() docstring for details on
@@ -346,6 +349,7 @@ def _parse_transpile_args(circuits, backend,
     routing_method = _parse_routing_method(routing_method, num_circuits)
     translation_method = _parse_translation_method(translation_method, num_circuits)
     synthesis_fidelity = _parse_synthesis_fidelity(synthesis_fidelity, num_circuits)
+    pulse_optimize = _parse_pulse_optimize(pulse_optimize, num_circuits)
     seed_transpiler = _parse_seed_transpiler(seed_transpiler, num_circuits)
     optimization_level = _parse_optimization_level(optimization_level, num_circuits)
     output_name = _parse_output_name(output_name, circuits)
@@ -354,7 +358,7 @@ def _parse_transpile_args(circuits, backend,
     list_transpile_args = []
     for args in zip(basis_gates, coupling_map, backend_properties,
                     initial_layout, layout_method, routing_method, translation_method,
-                    synthesis_fidelity, seed_transpiler, optimization_level,
+                    synthesis_fidelity, pulse_optimize, seed_transpiler, optimization_level,
                     output_name, callback):
         transpile_args = {'pass_manager_config': PassManagerConfig(basis_gates=args[0],
                                                                    coupling_map=args[1],
@@ -364,10 +368,11 @@ def _parse_transpile_args(circuits, backend,
                                                                    routing_method=args[5],
                                                                    translation_method=args[6],
                                                                    synthesis_fidelity=args[7],
-                                                                   seed_transpiler=args[8]),
-                          'optimization_level': args[9],
-                          'output_name': args[10],
-                          'callback': args[11]}
+                                                                   pulse_optimize=args[8],
+                                                                   seed_transpiler=args[9]),
+                          'optimization_level': args[10],
+                          'output_name': args[11],
+                          'callback': args[12]}
         list_transpile_args.append(transpile_args)
 
     return list_transpile_args
@@ -468,6 +473,12 @@ def _parse_synthesis_fidelity(synthesis_fidelity, num_circuits):
     if not isinstance(synthesis_fidelity, list):
         synthesis_fidelity = [synthesis_fidelity] * num_circuits
     return synthesis_fidelity
+
+
+def _parse_pulse_optimize(pulse_optimize, num_circuits):
+    if not isinstance(pulse_optimize, list):
+        pulse_optimize = [pulse_optimize] * num_circuits
+    return pulse_optimize
 
 
 def _parse_seed_transpiler(seed_transpiler, num_circuits):

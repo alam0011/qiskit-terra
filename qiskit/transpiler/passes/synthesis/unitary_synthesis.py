@@ -82,7 +82,8 @@ class UnitarySynthesis(TransformationPass):
     def __init__(self,
                  basis_gates: List[str],
                  synthesis_fidelity: float = 1,
-                 backend_props: BackendProperties = None):
+                 backend_props: BackendProperties = None,
+                 pulse_optimize: bool = True):
         """UnitarySynthesis initializer.
 
         Args:
@@ -90,11 +91,13 @@ class UnitarySynthesis(TransformationPass):
             synthesis_fidelity: minimum synthesis fidelity due to approximation.
             backend_props: properties of a backend to synthesize for
                 (e.g. gate fidelities).
+            pulse_optimize: whether to optimize pulses during synthesis.
         """
         super().__init__()
         self._basis_gates = basis_gates
         self._fidelity = synthesis_fidelity
         self._backend_props = backend_props
+        self._pulse_optimize = pulse_optimize
 
     def run(self, dag: DAGCircuit) -> DAGCircuit:
         """Run the UnitarySynthesis pass on `dag`.
@@ -108,19 +111,16 @@ class UnitarySynthesis(TransformationPass):
 
         euler_basis = _choose_euler_basis(self._basis_gates)
         kak_gate = _choose_kak_gate(self._basis_gates)
-        if isinstance(kak_gate, (CXGate, ECRGate)) and self._backend_props:
-            pulse_optimize = True
-        else:
-            pulse_optimize = False
 
         decomposer1q, decomposer2q = None, None
         if euler_basis is not None:
             decomposer1q = OneQubitEulerDecomposer(euler_basis)
         if kak_gate is not None:
             decomposer2q = TwoQubitBasisDecomposer(kak_gate, euler_basis=euler_basis,
-                                                   pulse_optimize=pulse_optimize)
+                                                   pulse_optimize=self._pulse_optimize)
 
-        for node in dag.named_nodes('unitary', 'swap'):
+        nodes_to_synthesize = ['unitary', 'swap'] if self._pulse_optimize else ['unitary']
+        for node in dag.named_nodes(*nodes_to_synthesize):
 
             synth_dag = None
             wires = None
@@ -165,7 +165,7 @@ class UnitarySynthesis(TransformationPass):
                 # if a natural direction exists but the synthesis is in the opposite direction,
                 # resynthesize a new operator which is the original conjugated by swaps.
                 # this new operator is doubly mirrored from the original and is locally equivalent.
-                if (natural_direction and pulse_optimize and
+                if (natural_direction and self._pulse_optimize and
                     [q.index for q in synth_dag.two_qubit_ops()[0].qargs] != natural_direction):
                     su4_mat_mm = deepcopy(su4_mat)
                     su4_mat_mm[[1, 2]] = su4_mat_mm[[2, 1]]
