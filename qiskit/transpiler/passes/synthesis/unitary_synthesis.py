@@ -156,22 +156,16 @@ class UnitarySynthesis(TransformationPass):
                     if natural_direction:
                         physical_gate_fidelity = 1 - self._backend_props.gate_error(
                                 'cx', [node.qargs[i].index for i in natural_direction])
-                #    print('len_0_1: ', len_0_1)
-                #    print('len_1_0: ', len_1_0)
-                #from qiskit.converters import dag_to_circuit
-                #print('node.qargs: ', node.qargs)
-                #print('natural_direction: ', natural_direction)
 
                 basis_fidelity = self._fidelity or physical_gate_fidelity
                 su4_mat = node.op.to_matrix()
                 synth_dag = circuit_to_dag(
                     decomposer2q(su4_mat, basis_fidelity=basis_fidelity))
-                #print(dag_to_circuit(synth_dag).draw(fold=200))
 
                 # if a natural direction exists but the synthesis is in the opposite direction,
                 # resynthesize a new operator which is the original conjugated by swaps.
                 # this new operator is doubly mirrored from the original and is locally equivalent.
-                if (natural_direction and
+                if (natural_direction and pulse_optimize and
                     [q.index for q in synth_dag.two_qubit_ops()[0].qargs] != natural_direction):
                     su4_mat_mm = deepcopy(su4_mat)
                     su4_mat_mm[[1, 2]] = su4_mat_mm[[2, 1]]
@@ -180,8 +174,6 @@ class UnitarySynthesis(TransformationPass):
                         decomposer2q(su4_mat_mm, basis_fidelity=basis_fidelity))
                     wires = synth_dag.wires[::-1]
 
-                 #   print('need to flip')
-                 #   print(dag_to_circuit(synth_dag).draw(fold=200))
             else:
                 synth_dag = circuit_to_dag(
                     isometry.Isometry(node.op.to_matrix(), 0, 0).definition)
