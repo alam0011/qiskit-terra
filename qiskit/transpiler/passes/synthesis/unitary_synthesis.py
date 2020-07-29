@@ -82,6 +82,7 @@ class UnitarySynthesis(TransformationPass):
     def __init__(self,
                  basis_gates: List[str],
                  synthesis_fidelity: float = 1,
+                 coupling_map: List = None,
                  backend_props: BackendProperties = None,
                  pulse_optimize: bool = True):
         """UnitarySynthesis initializer.
@@ -96,6 +97,7 @@ class UnitarySynthesis(TransformationPass):
         super().__init__()
         self._basis_gates = basis_gates
         self._fidelity = synthesis_fidelity
+        self._coupling_map = coupling_map
         self._backend_props = backend_props
         self._pulse_optimize = pulse_optimize
 
@@ -156,6 +158,14 @@ class UnitarySynthesis(TransformationPass):
                     if natural_direction:
                         physical_gate_fidelity = 1 - self._backend_props.gate_error(
                                 'cx', [node.qargs[i].index for i in natural_direction])
+
+                elif layout and self._coupling_map:
+                    zero_one = node.qargs[1].index in self._coupling_map.neighbors(node.qargs[0].index)
+                    one_zero = node.qargs[0].index in self._coupling_map.neighbors(node.qargs[1].index)
+                    if zero_one and not one_zero:
+                        natural_direction = [0, 1]
+                    if one_zero and not zero_one:
+                        natural_direction = [1, 0]
 
                 basis_fidelity = self._fidelity or physical_gate_fidelity
                 su4_mat = node.op.to_matrix()
