@@ -43,3 +43,4 @@ from .bogota import FakeBogota
 from .montreal import FakeMontreal
 from .toronto import FakeToronto
 from .johannesburg_ecr import FakeJohannesburgECR
+from .montreal_ecr import FakeMontrealECR
