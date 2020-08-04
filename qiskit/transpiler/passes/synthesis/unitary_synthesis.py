@@ -175,7 +175,7 @@ class UnitarySynthesis(TransformationPass):
                 # if a natural direction exists but the synthesis is in the opposite direction,
                 # resynthesize a new operator which is the original conjugated by swaps.
                 # this new operator is doubly mirrored from the original and is locally equivalent.
-                if (natural_direction and self._pulse_optimize and
+                if (natural_direction and self._pulse_optimize and synth_dag.two_qubit_ops() and
                     [q.index for q in synth_dag.two_qubit_ops()[0].qargs] != natural_direction):
                     su4_mat_mm = deepcopy(su4_mat)
                     su4_mat_mm[[1, 2]] = su4_mat_mm[[2, 1]]
