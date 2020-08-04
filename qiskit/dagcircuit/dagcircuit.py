@@ -92,47 +92,8 @@ class DAGCircuit:
         self._clbits = DummyCallableList()  # DeprecationWarning period, and remove name underscore.
 
         self._global_phase = 0
-        self._id_to_node = {}
-
-        self._multi_graph = None
-        self._gx = None
-        self._USE_RX = None
 
         self.duration = None
-
-    # Multigraph methods where retworkx API differs syntactically from networkx.
-    def _add_multi_graph_node(self, node):
-        # nx: requires manual node id handling.
-        # rx: provides defined ids for added nodes.
-        raise NotImplementedError()
-
-    def _get_multi_graph_nodes(self):
-        raise NotImplementedError()
-
-    def _add_multi_graph_edge(self, src_id, dest_id, data):
-        # nx: accepts edge data as kwargs.
-        # rx: accepts edge data as a dict arg.
-        raise NotImplementedError()
-
-    def _get_all_multi_graph_edges(self, src_id, dest_id):
-        # nx: edge enumeration through indexing multigraph
-        # rx: edge enumeration through method get_all_edge_data
-        raise NotImplementedError()
-
-    def _get_multi_graph_edges(self):
-        # nx: Includes edge data in return only when data kwarg = True
-        # rx: Always includes edge data in return
-        raise NotImplementedError()
-
-    def _get_multi_graph_in_edges(self, node_id):
-        # nx: Includes edge data in return only when data kwarg = True
-        # rx: Always includes edge data in return
-        raise NotImplementedError()
-
-    def _get_multi_graph_out_edges(self, node_id):
-        # nx: Includes edge data in return only when data kwarg = True
-        # rx: Always includes edge data in return
-        raise NotImplementedError()
 
     def to_networkx(self):
         """Returns a copy of the DAGCircuit in networkx format."""
