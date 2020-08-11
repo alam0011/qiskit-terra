@@ -193,10 +193,11 @@ class DrawDataContainer:
         """
         for inst_data in events.gates():
             # get matrix
-            if hasattr(inst_data.operand, 'to_matrix'):
-                unitary = str(inst_data.operand.to_matrix())
-            else:
-                unitary = None
+            #if hasattr(inst_data.operand, 'to_matrix'):
+            #    unitary = str(inst_data.operand.to_matrix())
+            #else:
+            #    unitary = None
+            unitary = None
 
             # get label
             if hasattr(inst_data.operand, 'label'):
