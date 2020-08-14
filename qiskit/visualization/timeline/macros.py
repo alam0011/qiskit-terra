@@ -60,7 +60,7 @@ def get_latex_gate_name(name: str) -> str:
     """
     name_dict = {
         'u0': r'U$_0$',
-        'u1': r'U$_1$',
+        'u1': r'',
         'u2': r'U$_2$',
         'u3': r'U$_3$',
         'id': r'Id',

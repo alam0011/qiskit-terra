@@ -42,13 +42,13 @@ class QiskitTimelineStyle:
     gate_dot_z_order = 4
 
     # transparency of gate (common for box and dot)
-    gate_alpha: float = 1.
+    gate_alpha: float = 0.9
 
     # size of gate dot
-    gate_dot_marker_size: float = 10.
+    gate_dot_marker_size: float = 50.
 
     # length of constriction on both sides of gate box
-    gate_box_side_width: float = 20.
+    gate_box_side_width: float = 4.
 
     # edge color of gate box
     gate_box_edge_color: str = None
@@ -60,7 +60,7 @@ class QiskitTimelineStyle:
     gate_text_color: str = '#000000'
 
     # front text size of gate (common for box and dot)
-    gate_text_size: int = 12
+    gate_text_size: int = 60
 
     #################################
     # Barrier appearance
@@ -97,7 +97,7 @@ class QiskitTimelineStyle:
     link_h_spacing: float = 20.
 
     # line width of register link
-    link_linewidth: float = 10.
+    link_linewidth: float = 100.
 
     # transparency of register link
     link_alpha: float = 0.7
@@ -167,10 +167,10 @@ class QiskitTimelineStyle:
     #################################
 
     # vertical canvas size per register in units of inch
-    canvas_inch_per_unit_v = 1.5
+    canvas_inch_per_unit_v = 15
 
     # horizontal canvas size per dt in units of inch
-    canvas_inch_per_unit_h = 0.006
+    canvas_inch_per_unit_h = 0.06
 
     # dot per inch when save output figure in file
     save_dpi = 150

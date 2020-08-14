@@ -56,6 +56,7 @@ from qiskit.circuit.library.standard_gates.h import CHGate
 from qiskit.circuit.library.standard_gates.rx import CRXGate
 from qiskit.circuit.library.standard_gates.ry import CRYGate
 from qiskit.circuit.library.standard_gates.rz import CRZGate
+from qiskit.circuit.delay import Delay
 
 
 def ast_to_dag(ast):
@@ -102,6 +103,7 @@ class AstInterpreter:
     standard_extension = {"u1": U1Gate,
                           "u2": U2Gate,
                           "u3": U3Gate,
+                          "delay": Delay,
                           "x": XGate,
                           "y": YGate,
                           "z": ZGate,

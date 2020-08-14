@@ -15,6 +15,8 @@ gate cx c,t { CX c,t; }
 gate id a { U(0,0,0) a; }
 // idle gate (identity) with length gamma*sqglen
 gate u0(gamma) q { U(0,0,0) q; }
+// idle gate (identity) with length gamma*sqglen
+gate delay(gamma) q { U(0,0,0) q; }
 
 // --- QE Standard Gates ---
 

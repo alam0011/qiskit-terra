@@ -240,6 +240,7 @@ class DrawDataContainer:
                 }
 
                 front_string = '{0}\n[{1}]'.format(oper_string, inst_data.duration)
+                front_string = ''
 
                 drawing = drawing_objects.InfoBoxData(
                     data_type=inst_data.operand.__class__.__name__, bind=events.reg,
@@ -286,7 +287,7 @@ class DrawDataContainer:
 
         styles = {
             'zorder': self.style.register_label_z_order,
-            'fontsize': self.style.register_label_fontsize,
+            'fontsize': 90,
             'va': 'center',
             'ha': 'right'
         }
