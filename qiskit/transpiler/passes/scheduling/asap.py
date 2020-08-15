@@ -83,4 +83,5 @@ class ASAPSchedule(TransformationPass):
         new_dag.name = dag.name
         new_dag.duration = circuit_duration
         new_dag.instruction_durations = self.durations
+        new_dag.qubit_time_available = qubit_time_available
         return new_dag

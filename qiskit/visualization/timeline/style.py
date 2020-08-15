@@ -45,7 +45,7 @@ class QiskitTimelineStyle:
     gate_alpha: float = 0.9
 
     # size of gate dot
-    gate_dot_marker_size: float = 50.
+    gate_dot_marker_size: float = 30.
 
     # length of constriction on both sides of gate box
     gate_box_side_width: float = 4.

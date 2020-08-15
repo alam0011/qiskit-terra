@@ -58,4 +58,5 @@ def dag_to_circuit(dag):
         circuit._append(inst, node.qargs, node.cargs)
 
     circuit.duration = dag.duration
+    circuit.qubit_time_available = dag.qubit_time_available
     return circuit

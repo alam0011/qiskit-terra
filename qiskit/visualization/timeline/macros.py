@@ -49,7 +49,8 @@ def get_iqx_gate_color(name: str) -> str:
         'reset': '#000000',
         'target': '#FFFFFF',
         'multi': '#BB8BFF',
-        'measure': '#000000'
+        'measure': '#000000',
+        'delay': '#58555c'
     }
 
     return color_dict.get(name, '#BB8BFF')
