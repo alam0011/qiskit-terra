@@ -111,6 +111,78 @@ class YGate(Gate):
                             [1j, 0]], dtype=complex)
 
 
+class YpGate(Gate):
+    r"""The single-qubit Pauli-Y gate (:math:`\sigma_x`).
+             ┌────┐
+        q_0: ┤ Yp ├
+             └────┘
+    """
+
+    def __init__(self, label=None):
+        """Create new Y gate."""
+        super().__init__('yp', 1, [], label=label)
+
+    def _define(self):
+        """
+        gate yp a { u3(pi,0,pi) a; }
+        """
+        # pylint: disable=cyclic-import
+        from qiskit.circuit.quantumcircuit import QuantumCircuit
+        from .u3 import U3Gate
+        q = QuantumRegister(1, 'q')
+        qc = QuantumCircuit(q, name=self.name)
+        rules = [
+            (U3Gate(pi, pi / 2, pi / 2), [q[0]], [])
+        ]
+        qc._data = rules
+        self.definition = qc
+
+    def inverse(self):
+        r"""Return inverted Y gate (itself)."""
+        return YmGate()  # self-inverse
+
+    def to_matrix(self):
+        """Return a numpy.array for the Y gate."""
+        return numpy.array([[0, -1j],
+                            [1j, 0]], dtype=complex)
+
+
+class YmGate(Gate):
+    r"""The single-qubit Pauli-Y gate (:math:`\sigma_y`).
+             ┌────┐
+        q_0: ┤ Ym ├
+             └────┘
+    """
+
+    def __init__(self, label=None):
+        """Create new Y gate."""
+        super().__init__('ym', 1, [], label=label)
+
+    def _define(self):
+        """
+        gate ym a { u3(pi,0,pi) a; }
+        """
+        # pylint: disable=cyclic-import
+        from qiskit.circuit.quantumcircuit import QuantumCircuit
+        from .u3 import U3Gate
+        q = QuantumRegister(1, 'q')
+        qc = QuantumCircuit(q, name=self.name)
+        rules = [
+            (U3Gate(pi, pi / 2, pi / 2), [q[0]], [])
+        ]
+        qc._data = rules
+        self.definition = qc
+
+    def inverse(self):
+        r"""Return inverted Y gate (itself)."""
+        return YpGate()  # self-inverse
+
+    def to_matrix(self):
+        """Return a numpy.array for the Y gate."""
+        return numpy.array([[0, -1j],
+                            [1j, 0]], dtype=complex)
+
+
 class CYMeta(type):
     """A metaclass to ensure that CyGate and CYGate are of the same type.
 

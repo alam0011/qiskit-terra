@@ -2212,6 +2212,16 @@ class QuantumCircuit:
         from .library.standard_gates.x import XGate
         return self.append(XGate(label=label), [qubit], [])
 
+    def xp(self, qubit, *, label=None, ctrl_state=None, q=None):  # pylint: disable=unused-argument
+        """Apply :class:`~qiskit.circuit.library.XpGate`."""
+        from .library.standard_gates.x import XpGate
+        return self.append(XpGate(label=label), [qubit], [])
+
+    def xm(self, qubit, *, label=None, ctrl_state=None, q=None):  # pylint: disable=unused-argument
+        """Apply :class:`~qiskit.circuit.library.XmGate`."""
+        from .library.standard_gates.x import XmGate
+        return self.append(XmGate(label=label), [qubit], [])
+
     @deprecate_arguments({'ctl': 'control_qubit',
                           'tgt': 'target_qubit'})
     def cx(self, control_qubit, target_qubit, *, label=None, ctrl_state=None,
@@ -2315,6 +2325,16 @@ class QuantumCircuit:
         """Apply :class:`~qiskit.circuit.library.YGate`."""
         from .library.standard_gates.y import YGate
         return self.append(YGate(), [qubit], [])
+
+    def yp(self, qubit, *, label=None, ctrl_state=None, q=None):  # pylint: disable=unused-argument
+        """Apply :class:`~qiskit.circuit.library.YpGate`."""
+        from .library.standard_gates.y import YpGate
+        return self.append(YpGate(label=label), [qubit], [])
+
+    def ym(self, qubit, *, label=None, ctrl_state=None, q=None):  # pylint: disable=unused-argument
+        """Apply :class:`~qiskit.circuit.library.YmGate`."""
+        from .library.standard_gates.y import YmGate
+        return self.append(YmGate(label=label), [qubit], [])
 
     @deprecate_arguments({'ctl': 'control_qubit',
                           'tgt': 'target_qubit'})

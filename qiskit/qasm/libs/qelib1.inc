@@ -26,8 +26,16 @@ gate p(lambda) q { U(0,0,lambda) q; }
 
 // Pauli gate: bit-flip
 gate x a { u3(pi,0,pi) a; }
+// Pauli gate: bit-flip
+gate xp a { u3(pi,0,pi) a; }
+// Pauli gate: bit-flip
+gate xm a { u3(pi,0,pi) a; }
 // Pauli gate: bit and phase flip
 gate y a { u3(pi,pi/2,pi/2) a; }
+// Pauli gate: bit and phase flip
+gate yp a { u3(pi,pi/2,pi/2) a; }
+// Pauli gate: bit and phase flip
+gate ym a { u3(pi,pi/2,pi/2) a; }
 // Pauli gate: phase flip
 gate z a { u1(pi) a; }
 // Clifford gate: Hadamard

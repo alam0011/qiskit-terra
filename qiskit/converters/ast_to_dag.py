@@ -42,8 +42,8 @@ from qiskit.circuit.library.standard_gates.t import TdgGate
 from qiskit.circuit.library.standard_gates.u1 import U1Gate
 from qiskit.circuit.library.standard_gates.u2 import U2Gate
 from qiskit.circuit.library.standard_gates.u3 import U3Gate
-from qiskit.circuit.library.standard_gates.x import XGate
-from qiskit.circuit.library.standard_gates.y import YGate
+from qiskit.circuit.library.standard_gates.x import XGate, XpGate, XmGate
+from qiskit.circuit.library.standard_gates.y import YGate, YpGate, YmGate
 from qiskit.circuit.library.standard_gates.z import ZGate
 from qiskit.circuit.library.standard_gates.rx import RXGate
 from qiskit.circuit.library.standard_gates.ry import RYGate
@@ -105,7 +105,11 @@ class AstInterpreter:
                           "u3": U3Gate,
                           "delay": Delay,
                           "x": XGate,
+                          "xp": XpGate,
+                          "xm": XmGate,
                           "y": YGate,
+                          "yp": YpGate,
+                          "ym": YmGate,
                           "z": ZGate,
                           "t": TGate,
                           "tdg": TdgGate,

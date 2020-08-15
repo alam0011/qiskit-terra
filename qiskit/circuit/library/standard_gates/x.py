@@ -117,6 +117,78 @@ class XGate(Gate):
                             [1, 0]], dtype=complex)
 
 
+class XpGate(Gate):
+    r"""The single-qubit Pauli-X gate (:math:`\sigma_x`).
+             ┌────┐
+        q_0: ┤ Xp ├
+             └────┘
+    """
+
+    def __init__(self, label=None):
+        """Create new X gate."""
+        super().__init__('xp', 1, [], label=label)
+
+    def _define(self):
+        """
+        gate xp a { u3(pi,0,pi) a; }
+        """
+        # pylint: disable=cyclic-import
+        from qiskit.circuit.quantumcircuit import QuantumCircuit
+        from .u3 import U3Gate
+        q = QuantumRegister(1, 'q')
+        qc = QuantumCircuit(q, name=self.name)
+        rules = [
+            (U3Gate(pi, 0, pi), [q[0]], [])
+        ]
+        qc._data = rules
+        self.definition = qc
+
+    def inverse(self):
+        r"""Return inverted X gate (itself)."""
+        return XmGate()  # self-inverse
+
+    def to_matrix(self):
+        """Return a numpy.array for the X gate."""
+        return numpy.array([[0, 1],
+                            [1, 0]], dtype=complex)
+
+
+class XmGate(Gate):
+    r"""The single-qubit Pauli-X gate (:math:`\sigma_x`).
+             ┌────┐
+        q_0: ┤ Xm ├
+             └────┘
+    """
+
+    def __init__(self, label=None):
+        """Create new X gate."""
+        super().__init__('xm', 1, [], label=label)
+
+    def _define(self):
+        """
+        gate xm a { u3(pi,0,pi) a; }
+        """
+        # pylint: disable=cyclic-import
+        from qiskit.circuit.quantumcircuit import QuantumCircuit
+        from .u3 import U3Gate
+        q = QuantumRegister(1, 'q')
+        qc = QuantumCircuit(q, name=self.name)
+        rules = [
+            (U3Gate(pi, 0, pi), [q[0]], [])
+        ]
+        qc._data = rules
+        self.definition = qc
+
+    def inverse(self):
+        r"""Return inverted X gate (itself)."""
+        return XpGate()  # self-inverse
+
+    def to_matrix(self):
+        """Return a numpy.array for the X gate."""
+        return numpy.array([[0, 1],
+                            [1, 0]], dtype=complex)
+
+
 class CXMeta(type):
     """A metaclass to ensure that CnotGate and CXGate are of the same type.
 
