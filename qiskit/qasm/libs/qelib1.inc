@@ -17,6 +17,10 @@ gate id a { U(0,0,0) a; }
 gate u0(gamma) q { U(0,0,0) q; }
 // idle gate (identity) with length gamma*sqglen
 gate delay(gamma) q { U(0,0,0) q; }
+// generic single qubit gate
+gate u(theta,phi,lambda) q { U(theta,phi,lambda) q; }
+// phase gate
+gate p(lambda) q { U(0,0,lambda) q; }
 
 // --- QE Standard Gates ---
 

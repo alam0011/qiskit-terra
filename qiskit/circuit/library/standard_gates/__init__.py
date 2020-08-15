@@ -37,6 +37,7 @@ Standard gates (:mod:`qiskit.circuit.library.standard_gates`)
    HGate
    IGate
    MSGate
+   PhaseGate
    RCCXGate
    RC3XGate
    RXGate
@@ -55,6 +56,7 @@ Standard gates (:mod:`qiskit.circuit.library.standard_gates`)
    iSwapGate
    TGate
    TdgGate
+   UGate
    U1Gate
    U2Gate
    U3Gate

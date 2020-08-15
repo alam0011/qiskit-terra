@@ -2340,6 +2340,16 @@ class QuantumCircuit:
         return self.append(CZGate(label=label, ctrl_state=ctrl_state),
                            [control_qubit, target_qubit], [])
 
+    def p(self, theta, qubit):
+        """Apply :class:`~qiskit.circuit.library.PhaseGate`."""
+        from .library.standard_gates.p import PhaseGate
+        return self.append(PhaseGate(theta), [qubit], [])
+
+    def u(self, theta, phi, lam, qubit):
+        """Apply :class:`~qiskit.circuit.library.UGate`."""
+        from .library.standard_gates.u import UGate
+        return self.append(UGate(theta, phi, lam), [qubit], [])
+
 
 def _circuit_from_qasm(qasm):
     # pylint: disable=cyclic-import

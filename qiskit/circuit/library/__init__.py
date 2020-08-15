@@ -44,6 +44,7 @@ Standard Gates
    IGate
    Measure
    MSGate
+   PhaseGate
    RCCXGate
    RC3XGate
    Reset
@@ -63,6 +64,7 @@ Standard Gates
    iSwapGate
    TGate
    TdgGate
+   UGate
    U1Gate
    U2Gate
    U3Gate
