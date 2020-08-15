@@ -79,6 +79,8 @@ class DefaultStyle:
             'u1': basis_color,
             'u2': basis_color,
             'u3': basis_color,
+            'u': basis_color,
+            'p': basis_color,
             'id': iden_color,
             'x': pauli_color,
             'y': pauli_color,
