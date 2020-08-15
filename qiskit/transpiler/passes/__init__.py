@@ -86,6 +86,14 @@ Scheduling
    ASAPSchedule
    DelayInDt
 
+Decoupling
+=============
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   InsertDD
+
 Circuit Analysis
 ================
 
@@ -181,6 +189,9 @@ from .synthesis import UnitarySynthesis
 from .scheduling import ALAPSchedule
 from .scheduling import ASAPSchedule
 from .scheduling import DelayInDt
+
+# dynamical decoupling
+from .decoupling import InsertDD
 
 # additional utility passes
 from .utils import CheckMap

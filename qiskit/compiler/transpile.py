@@ -52,6 +52,7 @@ def transpile(circuits: Union[QuantumCircuit, List[QuantumCircuit]],
               translation_method: Optional[str] = None,
               scheduling_method: Optional[str] = None,
               instruction_durations: Optional[InstructionDurationsType] = None,
+              dd_sequence: Optional[List[str]] = None,
               synthesis_fidelity: Optional[float] = None,
               pulse_optimize: Optional[bool] = None,
               seed_transpiler: Optional[int] = None,
@@ -141,6 +142,7 @@ def transpile(circuits: Union[QuantumCircuit, List[QuantumCircuit]],
             E.g. [('cx', [0, 1], 1000), ('u3', [0], 300)]
             Durations defined in ``backend.properties`` are used as default and
             they are overwritten with the instruction_durations.
+        dd_sequence: dynamical decoupling via insertion of a gate sequence in idle spots.
         seed_transpiler: Sets random seed for the stochastic parts of the transpiler
         optimization_level: How much optimization to perform on the circuits.
             Higher levels generate more optimized circuits,
@@ -237,7 +239,7 @@ def transpile(circuits: Union[QuantumCircuit, List[QuantumCircuit]],
                                            backend_properties, initial_layout,
                                            layout_method, routing_method, translation_method,
                                            scheduling_method, instruction_durations,
-                                           synthesis_fidelity, pulse_optimize,
+                                           dd_sequence, synthesis_fidelity, pulse_optimize,
                                            seed_transpiler, optimization_level,
                                            callback, output_name)
 
@@ -374,7 +376,7 @@ def _transpile_circuit(circuit_config_tuple: Tuple[QuantumCircuit, Dict]) -> Qua
 def _parse_transpile_args(circuits, backend,
                           basis_gates, coupling_map, backend_properties,
                           initial_layout, layout_method, routing_method, translation_method,
-                          scheduling_method, instruction_durations,
+                          scheduling_method, instruction_durations, dd_sequence,
                           synthesis_fidelity, pulse_optimize, seed_transpiler, optimization_level,
                           callback, output_name) -> List[Dict]:
     """Resolve the various types of args allowed to the transpile() function through
@@ -408,6 +410,7 @@ def _parse_transpile_args(circuits, backend,
         durations = InstructionDurations.from_backend(backend).update(instruction_durations)
     scheduling_method = _parse_scheduling_method(scheduling_method, num_circuits)
     durations = _parse_instruction_durations(durations, num_circuits)
+    dd_sequence = _parse_dd_sequence(dd_sequence, num_circuits)
     synthesis_fidelity = _parse_synthesis_fidelity(synthesis_fidelity, num_circuits)
     pulse_optimize = _parse_pulse_optimize(pulse_optimize, num_circuits)
     seed_transpiler = _parse_seed_transpiler(seed_transpiler, num_circuits)
@@ -418,7 +421,7 @@ def _parse_transpile_args(circuits, backend,
     list_transpile_args = []
     for args in zip(basis_gates, coupling_map, backend_properties, initial_layout,
                     layout_method, routing_method, translation_method, scheduling_method,
-                    durations, synthesis_fidelity, pulse_optimize, seed_transpiler,
+                    durations, dd_sequence, synthesis_fidelity, pulse_optimize, seed_transpiler,
                     optimization_level, output_name, callback):
         transpile_args = {'pass_manager_config': PassManagerConfig(basis_gates=args[0],
                                                                    coupling_map=args[1],
@@ -429,12 +432,13 @@ def _parse_transpile_args(circuits, backend,
                                                                    translation_method=args[6],
                                                                    scheduling_method=args[7],
                                                                    instruction_durations=args[8],
-                                                                   synthesis_fidelity=args[9],
-                                                                   pulse_optimize=args[9],
-                                                                   seed_transpiler=args[11]),
-                          'optimization_level': args[12],
-                          'output_name': args[13],
-                          'callback': args[14]}
+                                                                   dd_sequence=args[9],
+                                                                   synthesis_fidelity=args[10],
+                                                                   pulse_optimize=args[11],
+                                                                   seed_transpiler=args[12]),
+                          'optimization_level': args[13],
+                          'output_name': args[14],
+                          'callback': args[15]}
         list_transpile_args.append(transpile_args)
 
     return list_transpile_args
@@ -541,6 +545,14 @@ def _parse_instruction_durations(instruction_durations, num_circuits):
     if not isinstance(instruction_durations, list):
         instruction_durations = [instruction_durations] * num_circuits
     return instruction_durations
+
+
+def _parse_dd_sequence(dd_sequence, num_circuits):
+    # if a list of lists
+    if dd_sequence is None or (isinstance(dd_sequence, list) and
+                                not all(isinstance(i, list) for i in dd_sequence)):
+        dd_sequence = [dd_sequence] * num_circuits
+    return dd_sequence
 
 
 def _parse_synthesis_fidelity(synthesis_fidelity, num_circuits):

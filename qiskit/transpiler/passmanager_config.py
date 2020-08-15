@@ -31,6 +31,7 @@ class PassManagerConfig:
                  backend_properties=None,
                  synthesis_fidelity=None,
                  pulse_optimize=None,
+                 dd_sequence=None,
                  seed_transpiler=None):
         """Initialize a PassManagerConfig object
 
@@ -54,6 +55,7 @@ class PassManagerConfig:
                 qubit coherence times, etc.
             synthesis_fidelity (float): tolerable fidelity for approximate synthesis.
             pulse_optimize (bool): whether to optimize pulses during synthesis.
+            dd_sequence (list[str]): dynamical decoupling via insertion in idle spots.
             seed_transpiler (int): Sets random seed for the stochastic parts of
                 the transpiler.
         """
@@ -68,4 +70,5 @@ class PassManagerConfig:
         self.backend_properties = backend_properties
         self.synthesis_fidelity = synthesis_fidelity
         self.pulse_optimize = pulse_optimize
+        self.dd_sequence = dd_sequence
         self.seed_transpiler = seed_transpiler
