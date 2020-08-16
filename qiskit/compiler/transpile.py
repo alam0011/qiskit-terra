@@ -540,7 +540,7 @@ def _parse_scheduling_method(scheduling_method, num_circuits):
 def _parse_instruction_durations(instruction_durations, backend, num_circuits):
     # try getting backend_properties from user, else backend
     if instruction_durations is None:
-        if getattr(backend, 'properties', None):
+        if getattr(backend, 'properties', None) and backend.properties():
             instruction_durations = InstructionDurations.from_backend(backend)
     if not isinstance(instruction_durations, list):
         instruction_durations = [instruction_durations] * num_circuits
