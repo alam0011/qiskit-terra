@@ -27,7 +27,7 @@ from qiskit.providers import BaseBackend
 from qiskit.providers.models import BackendProperties
 from qiskit.pulse import Schedule
 from qiskit.tools.parallel import parallel_map
-from qiskit.transpiler import Layout, CouplingMap, PropertySet, PassManager
+from qiskit.transpiler import Layout, CouplingMap, InstructionDurations, PropertySet, PassManager
 from qiskit.transpiler.basepasses import BasePass
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit.transpiler.instruction_durations import InstructionDurationsType
@@ -404,12 +404,8 @@ def _parse_transpile_args(circuits, backend,
     layout_method = _parse_layout_method(layout_method, num_circuits)
     routing_method = _parse_routing_method(routing_method, num_circuits)
     translation_method = _parse_translation_method(translation_method, num_circuits)
-    durations = None
-    if scheduling_method is not None:
-        from qiskit.transpiler.instruction_durations import InstructionDurations
-        durations = InstructionDurations.from_backend(backend).update(instruction_durations)
     scheduling_method = _parse_scheduling_method(scheduling_method, num_circuits)
-    durations = _parse_instruction_durations(durations, num_circuits)
+    durations = _parse_instruction_durations(instruction_durations, backend, num_circuits)
     dd_sequence = _parse_dd_sequence(dd_sequence, num_circuits)
     synthesis_fidelity = _parse_synthesis_fidelity(synthesis_fidelity, num_circuits)
     pulse_optimize = _parse_pulse_optimize(pulse_optimize, num_circuits)
@@ -541,9 +537,16 @@ def _parse_scheduling_method(scheduling_method, num_circuits):
     return scheduling_method
 
 
-def _parse_instruction_durations(instruction_durations, num_circuits):
+def _parse_instruction_durations(instruction_durations, backend, num_circuits):
+    # try getting backend_properties from user, else backend
+    if instruction_durations is None:
+        if getattr(backend, 'properties', None):
+            instruction_durations = InstructionDurations.from_backend(backend)
     if not isinstance(instruction_durations, list):
         instruction_durations = [instruction_durations] * num_circuits
+    elif not isinstance(instruction_durations[0], InstructionDurations):
+        instruction_durations = [InstructionDurations(instruction_durations)
+                                 for i in instruction_durations]
     return instruction_durations
 
 

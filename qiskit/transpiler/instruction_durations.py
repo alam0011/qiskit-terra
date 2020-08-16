@@ -39,11 +39,8 @@ class InstructionDurations:
         """Construct the instruction durations from the backend."""
         if backend is None:
             return InstructionDurations()
-        # TODO: backend.properties() should tell us all about instruction durations
-        if not backend.configuration().open_pulse:
-            raise TranspilerError("No backend.configuration().dt in the backend")
 
-        dt = backend.configuration().dt  # pylint: disable=invalid-name
+        dt = backend.configuration().dt
         instruction_durations = []
         # backend.properties._gates -> instruction_durations
         for gate, insts in backend.properties()._gates.items():
@@ -57,12 +54,9 @@ class InstructionDurations:
                                       % (gate, duration, duration * dt, gate_length),
                                       UserWarning)
                     instruction_durations.append((gate, qubits, duration))
-        # To know duration of measures, to be removed
-        inst_map = backend.defaults().instruction_schedule_map
         all_qubits = tuple(range(backend.configuration().num_qubits))
-        meas_duration = inst_map.get('measure', all_qubits).duration
         for q in all_qubits:
-            instruction_durations.append(('measure', [q], meas_duration))
+            instruction_durations.append(('measure', [q], 1))
         return InstructionDurations(instruction_durations, dt)
 
     def update(self,

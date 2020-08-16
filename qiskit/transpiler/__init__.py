@@ -420,3 +420,4 @@ from .fencedobjs import FencedDAGCircuit, FencedPropertySet
 from .basepasses import AnalysisPass, TransformationPass
 from .coupling import CouplingMap
 from .layout import Layout
+from .instruction_durations import InstructionDurations
